@@ -17,5 +17,5 @@ Screenshots for each part are in [`screenshots/`](screenshots/).
 ## Status
 
 - [x] Part 1: Dockerfile
-- [ ] Part 2: Nginx reverse proxy
+- [x] Part 2: Nginx reverse proxy
 - [ ] Part 3: Multi-container app on EC2
