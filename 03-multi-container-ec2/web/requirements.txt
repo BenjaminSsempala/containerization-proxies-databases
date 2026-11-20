@@ -1,1 +1,3 @@
-# TODO
+flask==3.1.*
+pymysql==1.1.*
+cryptography

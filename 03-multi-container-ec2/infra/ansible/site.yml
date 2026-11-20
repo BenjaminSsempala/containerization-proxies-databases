@@ -1,0 +1,71 @@
+---
+# Install Docker + Compose, copy the app, start it, check it works
+- name: Deploy the Flask + MySQL app
+  hosts: app
+  become: true
+
+  tasks:
+    - name: Install Docker
+      ansible.builtin.dnf:
+        name: docker
+        state: present
+
+    - name: Start Docker
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Create the Docker plugins folder
+      ansible.builtin.file:
+        path: /usr/local/lib/docker/cli-plugins
+        state: directory
+
+    - name: Install the Docker Compose plugin
+      ansible.builtin.get_url:
+        url: https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64
+        dest: /usr/local/lib/docker/cli-plugins/docker-compose
+        mode: "0755"
+
+    - name: Find the latest buildx version (Compose needs it to build images)
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/docker/buildx/releases/latest
+      register: buildx
+
+    - name: Install the buildx plugin
+      ansible.builtin.get_url:
+        url: "https://github.com/docker/buildx/releases/download/{{ buildx.json.tag_name }}/buildx-{{ buildx.json.tag_name }}.linux-amd64"
+        dest: /usr/local/lib/docker/cli-plugins/docker-buildx
+        mode: "0755"
+
+    - name: Copy the app to the server
+      ansible.builtin.copy:
+        src: "../../{{ item }}"
+        dest: /home/ec2-user/app/
+      loop:
+        - docker-compose.yml
+        - .env
+        - web
+        - db
+
+    - name: Start the app (waits until db is healthy)
+      ansible.builtin.command: docker compose up -d --build --wait
+      args:
+        chdir: /home/ec2-user/app
+
+    - name: Show versions and running containers
+      ansible.builtin.shell: docker --version && docker compose version && docker compose ps
+      args:
+        chdir: /home/ec2-user/app
+      register: status
+
+    - name: Call the app
+      ansible.builtin.uri:
+        url: http://localhost:5000
+      register: app
+
+    - name: Print the results
+      ansible.builtin.debug:
+        msg:
+          - "{{ status.stdout_lines }}"
+          - "{{ app.json }}"

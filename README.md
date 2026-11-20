@@ -12,10 +12,17 @@ Screenshots for each part are in [`screenshots/`](screenshots/).
 
 ## Tools
 
-<!-- TODO: paste `docker --version` and `docker compose version` output from EC2 (Docker v25+, Compose v2+) -->
+Versions on the EC2 instance (the lab requires Docker v25+ and Docker Compose v2+):
+
+```
+Docker version 25.0.14, build 0bab007
+Docker Compose version v5.8.0
+```
+
+Part 3 also uses Terraform and Ansible to create the EC2 instance and deploy the app.
 
 ## Status
 
 - [x] Part 1: Dockerfile
 - [x] Part 2: Nginx reverse proxy
-- [ ] Part 3: Multi-container app on EC2
+- [x] Part 3: Multi-container app on EC2

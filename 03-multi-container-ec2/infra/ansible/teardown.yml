@@ -1,0 +1,10 @@
+---
+- name: Clean up the app
+  hosts: app
+  become: true
+
+  tasks:
+    - name: Remove containers, network and database volume
+      ansible.builtin.command: docker compose down --volumes
+      args:
+        chdir: /home/ec2-user/app
